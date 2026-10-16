@@ -1,24 +1,458 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>배달 수익 챌린지</title><style>*{box-sizing:border-box}body{margin:0;background:#12151c;color:white;font-family:system-ui,'Noto Sans KR',sans-serif}.wrap{max-width:600px;margin:auto;padding:22px}.title{font-size:20px;font-weight:900}.amount{font-size:42px;font-weight:900;margin:12px 0}.track{height:35px;background:#555b65;border-radius:30px;overflow:hidden}.fill{height:100%;width:0;border-radius:30px;background:linear-gradient(90deg,#ffe44f,#ff9a1e,#ed3333);transition:width .5s}.track{position:relative}.break{position:absolute;left:90.909%;top:0;height:100%;width:13px;transform:translateX(-50%);z-index:2;display:flex;align-items:center;justify-content:center;color:white;font-size:23px;font-weight:900;text-shadow:0 1px 3px #12151c;pointer-events:none}.goal{white-space:nowrap}.check{color:#42df7b}.login{background:#fff;color:#222}.auth{margin-top:10px;font-size:13px;color:#cbd4e2}.broadcast .break{font-size:19px}.sub{display:flex;justify-content:space-between;margin-top:9px;color:#d3d8e1;font-weight:700}.status{margin:15px 0;font-size:22px;font-weight:900;color:#ffd956}.panel{margin-top:30px;padding:20px;border:1px solid #3d4552;border-radius:16px;background:#1b202b}.panel h2{font-size:18px;margin:0 0 12px}input{width:100%;padding:15px;font-size:22px;border-radius:10px;border:0}button{border:0;border-radius:10px;padding:13px 17px;font-size:17px;font-weight:800;cursor:pointer}.buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.add{background:#ffb82e}.minus{background:#a9b7d0}.reset{background:#e66c6c}.small{font-size:13px;color:#abb4c4;margin-top:12px}.broadcast{background:transparent}.broadcast .wrap{max-width:none;padding:8px 12px}.broadcast .title{font-size:17px;text-shadow:0 2px 4px #000}.broadcast .amount{font-size:30px;margin:4px 0;text-shadow:0 2px 4px #000}.broadcast .track{height:27px;background:#555b65b8}.broadcast .sub{font-size:13px;text-shadow:0 2px 4px #000}.broadcast .status{font-size:17px;margin:5px 0;text-shadow:0 2px 4px #000}.broadcast .panel{display:none}</style></head><body><div class="wrap"><div class="title">🏍️ 퇴근 후 10만원 챌린지</div><div class="amount" id="amount">0원</div><div class="track"><div class="fill" id="fill"></div><div class="break">〰</div></div><div class="sub"><span>0원</span><span class="goal" id="goal">🎯 100,000원</span><span>🏁 110,000원</span></div><div class="status" id="status">오늘도 달려보자! 🔥</div><div class="panel"><h2>💰 콜 수락 금액 추가</h2><input id="entry" type="number" min="1" inputmode="numeric" placeholder="예: 3500"><div class="buttons"><button class="login" id="login">Google 로그인</button><button class="add" id="add">+ 금액 추가</button><button class="minus" id="undo">↶ 마지막 취소</button><button class="reset" id="reset">오늘 초기화</button></div><div class="auth" id="auth">Firebase 연결 중...</div><p class="small">방송 화면: 이 주소 뒤에 <b>?view=live</b> 추가 · 조작 화면: 기본 주소<br>본폰에서 Google 로그인 후 금액을 입력하면 방송폰에 실시간 반영됩니다. 방송 화면은 로그인할 필요가 없습니다.</p></div></div><script type="module">
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
-import {getDatabase,ref,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js';
-import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
-const firebaseConfig={apiKey:'AIzaSyBYli6uH0h7QGWdO0B3jXGGycSnh2JkL_U',authDomain:'delivery-live-9aa51.firebaseapp.com',databaseURL:'https://delivery-live-9aa51-default-rtdb.asia-southeast1.firebasedatabase.app',projectId:'delivery-live-9aa51',storageBucket:'delivery-live-9aa51.firebasestorage.app',messagingSenderId:'1089852186613',appId:'1:1089852186613:web:1c93216b16060c29d90abc'};
-const broadcast=new URLSearchParams(location.search).get('view')==='live';
+
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>배달 수익 챌린지</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:#10141d;
+  color:#f7f8fc;
+  font-family:system-ui,"Noto Sans KR",sans-serif;
+  padding:22px 14px;
+}
+.wrap{max-width:650px;margin:auto}
+.card{
+  background:#1c2535;
+  border:2px solid #354158;
+  border-radius:24px;
+  padding:22px 24px 18px;
+}
+.title{font-size:23px;font-weight:900}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.amount{
+  font-size:52px;
+  font-weight:900;
+  margin:8px 0;
+  white-space:nowrap;
+}
+.status{
+  font-size:17px;
+  font-weight:800;
+  text-align:right;
+  line-height:1.5;
+}
+.yellow{color:#ffda68}
+.red{color:#ff6069}
+.green{color:#52e68b}
+.progress{
+  display:flex;
+  gap:10px;
+  height:36px;
+  margin-top:13px;
+}
+.part{
+  height:100%;
+  min-width:0;
+  position:relative;
+  border:2px solid #8590a5;
+  border-radius:30px;
+  background:#394459;
+}
+.main{flex:10}
+.extra{flex:1.65}
+.fill{
+  width:0;
+  height:100%;
+  border-radius:30px;
+  background:linear-gradient(90deg,#ffe967,#ffac40,#ff3c4e);
+  transition:width .3s;
+}
+.main::after{
+  content:"";
+  position:absolute;
+  right:-10px;
+  top:-2px;
+  width:19px;
+  height:calc(100% + 4px);
+  background:#1c2535;
+  z-index:3;
+  clip-path:polygon(
+    50% 0,100% 25%,65% 50%,100% 75%,
+    50% 100%,0 75%,35% 50%,0 25%
+  );
+}
+.labels{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
+  font-size:17px;
+  font-weight:800;
+}
+.goal{white-space:nowrap}
+.panel{
+  margin-top:25px;
+  padding:24px;
+  border:1px solid #3b465a;
+  border-radius:23px;
+  background:#1d2535;
+}
+.panel h2{font-size:25px;margin:0 0 20px}
+.inputrow{
+  display:grid;
+  grid-template-columns:1.5fr 1fr;
+  gap:12px;
+}
+input{
+  width:100%;
+  min-width:0;
+  padding:14px;
+  font-size:22px;
+  border:0;
+  border-radius:13px;
+  background:white;
+  color:#20242c;
+}
+button{
+  border:0;
+  border-radius:13px;
+  padding:14px 10px;
+  font-size:19px;
+  font-weight:850;
+  cursor:pointer;
+}
+button:disabled{opacity:.5;cursor:not-allowed}
+.add{background:#ffbd36;color:#171717}
+.buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:13px;
+}
+.undo{background:#a7b8d8;color:#171717}
+.reset{background:#f07078;color:#171717}
+.login{
+  background:#fff;
+  color:#171717;
+  width:100%;
+  margin-top:15px;
+}
+.auth{
+  margin-top:14px;
+  font-size:14px;
+  color:#b9c5d8;
+}
+.small{
+  font-size:13px;
+  line-height:1.6;
+  color:#aab5c7;
+  margin-top:14px;
+}
+body.broadcast{
+  background:transparent!important;
+  padding:10px;
+}
+.broadcast .wrap{max-width:1000px}
+.broadcast .panel{display:none}
+.broadcast .card{background:rgba(28,37,53,.94)}
+@media(max-width:540px){
+  .card{padding:15px;border-radius:18px}
+  .title{font-size:17px}
+  .amount{font-size:38px}
+  .status{font-size:12px}
+  .progress{height:29px;gap:8px}
+  .labels{font-size:12px}
+  .panel{padding:17px}
+  .panel h2{font-size:22px}
+  input{font-size:18px}
+  button{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="card">
+    <div class="title">🛵 퇴근 후 10만원 챌린지</div>
+
+    <div class="top">
+      <div class="amount" id="amount">0원</div>
+      <div class="status" id="status">
+        목표까지 100,000원 남았다!
+      </div>
+    </div>
+
+    <div class="progress">
+      <div class="part main">
+        <div class="fill" id="mainfill"></div>
+      </div>
+      <div class="part extra">
+        <div class="fill" id="extrafill"></div>
+      </div>
+    </div>
+
+    <div class="labels">
+      <span>0원</span>
+      <span class="goal" id="goal">
+        🎯 10만원 〜 11만원 🏁
+      </span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>💰 콜 수락 금액 추가</h2>
+
+    <div class="inputrow">
+      <input id="entry" type="number" min="1"
+        inputmode="numeric" placeholder="예: 3500">
+      <button class="add" id="add">+ 금액 추가</button>
+    </div>
+
+    <div class="buttons">
+      <button class="undo" id="undo">↶ 마지막 취소</button>
+      <button class="reset" id="reset">오늘 초기화</button>
+    </div>
+
+    <button class="login" id="login">Google 로그인</button>
+
+    <div class="auth" id="auth">Firebase 연결 중...</div>
+
+    <p class="small">
+      방송 화면: 주소 뒤에 ?view=live 추가<br>
+      조작 화면: 기본 주소<br>
+      본폰에서 금액을 입력하면 방송폰에 실시간 반영됩니다.
+    </p>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp}
+from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+
+import {getDatabase,ref,onValue,runTransaction}
+from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js';
+
+import {
+  getAuth,GoogleAuthProvider,signInWithPopup,
+  signInWithRedirect,getRedirectResult,
+  onAuthStateChanged,signOut
+}
+from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+
+const firebaseConfig={
+  apiKey:'AIzaSyBYli6uH0h7QGWdO0B3jXGGycSnh2JkL_U',
+  authDomain:'delivery-live-9aa51.firebaseapp.com',
+  databaseURL:'https://delivery-live-9aa51-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId:'delivery-live-9aa51',
+  storageBucket:'delivery-live-9aa51.firebasestorage.app',
+  messagingSenderId:'1089852186613',
+  appId:'1:1089852186613:web:1c93216b16060c29d90abc'
+};
+
+const broadcast=
+  new URLSearchParams(location.search).get('view')==='live';
+
 if(broadcast)document.body.classList.add('broadcast');
+
 const fmt=n=>Math.round(n).toLocaleString('ko-KR')+'원';
-const app=initializeApp(firebaseConfig),db=getDatabase(app),auth=getAuth(app),moneyRef=ref(db,'earnings');
+
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+const auth=getAuth(app);
+const moneyRef=ref(db,'earnings');
 const allowed='woans615@gmail.com';
-let total=0,history=[];const add=document.getElementById('add'),undo=document.getElementById('undo'),reset=document.getElementById('reset'),login=document.getElementById('login'),authInfo=document.getElementById('auth');
-function render(){document.getElementById('amount').textContent=fmt(total);const fill=document.getElementById('fill');fill.style.width=Math.min(100,total/110000*100)+'%';fill.style.background=total>=110000?'#29ce65':'linear-gradient(90deg,#ffe44f,#ff9a1e,#ed3333)';document.getElementById('goal').innerHTML=total>=100000?'🎯 100,000원 <span class="check">✔</span>':'🎯 100,000원';document.getElementById('status').textContent=total>=110000?'🏁 11만원 완주! 기름값·부대비용까지 확보! 🟢':total>=100000?'🎉 10만원 달성! 기름값·부대비용 더 벌자!':`목표까지 ${fmt(100000-total)} 남았다!`}
-function authorized(){return auth.currentUser?.email===allowed}
-function setButtons(){const ok=authorized();add.disabled=undo.disabled=reset.disabled=!ok;login.textContent=ok?'로그아웃':'Google 로그인';authInfo.textContent=ok?'✅ 로그인 완료 · 실시간 저장 가능':auth.currentUser?'⚠️ 허용된 구글 계정이 아니야':'Google 로그인 후 금액을 입력할 수 있어.'}
-onAuthStateChanged(auth,setButtons);getRedirectResult(auth).catch(e=>{authInfo.textContent='로그인 오류: '+e.message});
-login.onclick=async()=>{if(authorized()){await signOut(auth);return}const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});try{await signInWithPopup(auth,provider)}catch(e){if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code)){await signInWithRedirect(auth,provider)}else authInfo.textContent='로그인 실패: '+e.message}};
-onValue(moneyRef,snap=>{const value=snap.val();total=typeof value==='number'&&Number.isFinite(value)?Math.max(0,value):0;render()},err=>{authInfo.textContent='DB 읽기 오류: '+err.message});
-async function change(delta){if(!authorized())return alert('먼저 허용된 구글 계정으로 로그인해줘!');try{const result=await runTransaction(moneyRef,current=>Math.max(0,(typeof current==='number'?current:0)+delta));if(!result.committed)throw new Error('저장 실패');return true}catch(e){alert('Firebase 저장 오류: '+e.message);return false}}
-add.onclick=async()=>{const entry=document.getElementById('entry'),v=Math.round(Number(entry.value));if(!Number.isSafeInteger(v)||v<=0)return alert('추가할 금액을 입력해줘!');add.disabled=true;const ok=await change(v);if(ok){history.push(v);entry.value=''}setButtons()};
-document.getElementById('entry').addEventListener('keydown',e=>{if(e.key==='Enter')add.click()});
-undo.onclick=async()=>{if(!history.length)return alert('이 폰에서 추가한 취소 기록이 없어!');undo.disabled=true;const v=history[history.length-1];if(await change(-v))history.pop();setButtons()};
-reset.onclick=async()=>{if(!authorized())return alert('먼저 로그인해줘!');if(!confirm('모든 기기의 오늘 금액을 0원으로 초기화할까?'))return;try{await runTransaction(moneyRef,()=>0);history=[]}catch(e){alert('초기화 실패: '+e.message)}};
-render();setButtons();
-</script></body></html>
+
+let total=0;
+let history=[];
+
+const add=document.getElementById('add');
+const undo=document.getElementById('undo');
+const reset=document.getElementById('reset');
+const login=document.getElementById('login');
+const authInfo=document.getElementById('auth');
+
+function render(){
+  document.getElementById('amount').textContent=fmt(total);
+
+  const mainfill=document.getElementById('mainfill');
+  const extrafill=document.getElementById('extrafill');
+
+  mainfill.style.width=
+    Math.min(100,total/100000*100)+'%';
+
+  extrafill.style.width=
+    Math.max(0,Math.min(100,(total-100000)/10000*100))+'%';
+
+  if(total>=110000){
+    mainfill.style.background='#29ce65';
+    extrafill.style.background='#29ce65';
+  }else if(total>=100000){
+    mainfill.style.background='#fa4d57';
+    extrafill.style.background=
+      'linear-gradient(90deg,#ffac40,#ff3c4e)';
+  }else{
+    mainfill.style.background=
+      'linear-gradient(90deg,#ffe967,#ffac40,#ff3c4e)';
+    extrafill.style.background=
+      'linear-gradient(90deg,#ffac40,#ff3c4e)';
+  }
+
+  const status=document.getElementById('status');
+  const goal=document.getElementById('goal');
+
+  if(total>=110000){
+    status.innerHTML=
+      '<span class="green">🏁 완주!</span>'+
+      '<div>기름값·부대비용까지 확보!</div>';
+    goal.textContent='✅ 10만원 〜 11만원 ✅';
+  }else if(total>=100000){
+    status.innerHTML=
+      '<span class="red">🎉 10만원 달성!</span>'+
+      '<div>기름값까지 '+fmt(110000-total)+' 더 가자!</div>';
+    goal.textContent='✅ 10만원 〜 11만원 🏁';
+  }else{
+    status.innerHTML=
+      '목표까지 <span class="yellow">'+
+      fmt(100000-total)+'</span> 남았다!';
+    goal.textContent='🎯 10만원 〜 11만원 🏁';
+  }
+}
+
+function authorized(){
+  return auth.currentUser?.email===allowed;
+}
+
+function setButtons(){
+  const ok=authorized();
+  add.disabled=!ok;
+  undo.disabled=!ok;
+  reset.disabled=!ok;
+
+  login.textContent=ok?'로그아웃':'Google 로그인';
+
+  authInfo.textContent=ok
+    ?'✅ 로그인 완료 · 실시간 저장 가능'
+    :auth.currentUser
+      ?'⚠️ 허용된 구글 계정이 아니야'
+      :'Google 로그인 후 금액을 입력할 수 있어.';
+}
+
+onAuthStateChanged(auth,setButtons);
+
+getRedirectResult(auth).catch(e=>{
+  authInfo.textContent='로그인 오류: '+e.message;
+});
+
+login.onclick=async()=>{
+  if(authorized()){
+    await signOut(auth);
+    return;
+  }
+
+  const provider=new GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+
+  try{
+    await signInWithPopup(auth,provider);
+  }catch(e){
+    if([
+      'auth/popup-blocked',
+      'auth/operation-not-supported-in-this-environment'
+    ].includes(e.code)){
+      await signInWithRedirect(auth,provider);
+    }else{
+      authInfo.textContent='로그인 실패: '+e.message;
+    }
+  }
+};
+
+onValue(moneyRef,snap=>{
+  const value=snap.val();
+  total=typeof value==='number'&&Number.isFinite(value)
+    ?Math.max(0,value):0;
+  render();
+},err=>{
+  authInfo.textContent='DB 읽기 오류: '+err.message;
+});
+
+async function change(delta){
+  if(!authorized()){
+    alert('먼저 허용된 구글 계정으로 로그인해줘!');
+    return false;
+  }
+
+  try{
+    const result=await runTransaction(
+      moneyRef,
+      current=>Math.max(
+        0,(typeof current==='number'?current:0)+delta
+      )
+    );
+
+    if(!result.committed)throw new Error('저장 실패');
+    return true;
+  }catch(e){
+    alert('Firebase 저장 오류: '+e.message);
+    return false;
+  }
+}
+
+add.onclick=async()=>{
+  const entry=document.getElementById('entry');
+  const v=Number(entry.value);
+
+  if(!Number.isSafeInteger(v)||v<=0){
+    alert('추가할 금액을 입력해줘!');
+    return;
+  }
+
+  add.disabled=true;
+  const ok=await change(v);
+
+  if(ok){
+    history.push(v);
+    entry.value='';
+  }
+
+  setButtons();
+};
+
+document.getElementById('entry')
+  .addEventListener('keydown',e=>{
+    if(e.key==='Enter')add.click();
+  });
+
+undo.onclick=async()=>{
+  if(!history.length){
+    alert('이 폰에서 추가한 취소 기록이 없어!');
+    return;
+  }
+
+  undo.disabled=true;
+  const v=history[history.length-1];
+
+  if(await change(-v))history.pop();
+  setButtons();
+};
+
+reset.onclick=async()=>{
+  if(!authorized()){
+    alert('먼저 로그인해줘!');
+    return;
+  }
+
+  if(!confirm('모든 기기의 오늘 금액을 0원으로 초기화할까?')){
+    return;
+  }
+
+  try{
+    await runTransaction(moneyRef,()=>0);
+    history=[];
+  }catch(e){
+    alert('초기화 실패: '+e.message);
+  }
+};
+
+render();
+setButtons();
+</script>
+</body>
+</html>
