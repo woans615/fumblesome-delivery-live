@@ -89,6 +89,25 @@ html.live .labels .eleven{right:0}
  html.live .amount{font-size:clamp(24px,6.1vw,30px)}
  html.live .labels{font-size:11px;margin-top:7px}
 }
+
+/* 2026-10-16: 방송용 한 줄 헤더. 기존 SVG와 Firebase 로직은 유지 */
+.live-goals{display:none}
+html.live .card{display:grid;grid-template-columns:minmax(0,1fr);padding:8px 10px 9px;gap:0}
+html.live .heading{grid-row:1;grid-column:1;justify-self:start;align-self:center;width:42%;max-width:none;min-width:0;overflow:visible;font-size:clamp(16px,4.25vw,24px);font-weight:900;letter-spacing:-1.1px;line-height:1.2;white-space:nowrap}
+html.live .top{grid-row:1;grid-column:1;display:grid;grid-template-columns:42% 30% 28%;padding:0;margin:0;min-height:39px;align-items:center;pointer-events:none}
+html.live .amount{grid-column:2;justify-self:center;font-size:clamp(27px,7.1vw,42px);font-weight:900;letter-spacing:-1px;white-space:nowrap;line-height:1.1}
+html.live .live-goals{grid-row:1;grid-column:1;display:flex;align-self:center;justify-self:end;justify-content:flex-end;align-items:center;gap:5px;width:28%;white-space:nowrap;font-size:clamp(11px,2.9vw,18px);font-weight:850;letter-spacing:-.5px;line-height:1.1}
+html.live .live-goals .ten{color:#ffdb83}
+html.live .live-goals .eleven{color:#f7f8ff}
+html.live .graph{grid-row:2;grid-column:1;margin-top:2px}
+html.live .labels{display:none!important}
+html.live .status{display:none!important}
+@media(max-width:430px){
+ html.live .heading{font-size:clamp(15px,4vw,18px);letter-spacing:-1px}
+ html.live .top{min-height:35px}
+ html.live .amount{font-size:clamp(25px,6.7vw,31px)}
+ html.live .live-goals{font-size:clamp(10px,2.8vw,13px);gap:3px;letter-spacing:-.6px}
+}
 </style>
 </head>
 <body>
@@ -109,6 +128,7 @@ html.live .labels .eleven{right:0}
 <path d="M500 1 H586 A13 13 0 0 1 599 14 A13 13 0 0 1 586 27 H500 L494 19 L500 13 L494 7 Z" fill="#394459" stroke="#8390a8" stroke-width="1.1"/>
 <rect id="extraFill" x="494" y="1" width="0" height="26" fill="url(#extraGradient)" clip-path="url(#extraClip)"/>
 </svg>
+<div class="live-goals"><span class="ten" id="topTen">🎯 10만원</span><span class="eleven" id="topEleven">11만원 🏁</span></div>
 <div class="labels"><span>0원</span><span class="goal" id="goal">🎯 10만원 ~ 11만원 🏁</span><span class="live-mark ten" id="tenMark">10만원</span><span class="live-mark eleven" id="elevenMark">11만원 🏁</span></div>
 </section>
 <section class="panel"><h2>💰 콜 수락 금액 추가</h2><div class="inputrow"><input id="entry" type="number" min="1" inputmode="numeric" placeholder="예: 3500"><button class="add" id="add">+ 금액 추가</button></div><div class="buttons"><button class="undo" id="undo">↶ 마지막 취소</button><button class="reset" id="reset">오늘 초기화</button></div><button class="login" id="login">Google 로그인</button><div class="auth" id="auth">Firebase 연결 중...</div><div class="note">방송 화면: 주소 뒤에 <b>?view=live</b> 추가<br>본폰에서 입력한 금액이 방송폰에 실시간 반영됩니다.</div></section>
@@ -148,6 +168,8 @@ function render(){
    else {$('status').innerHTML='<span class="line">목표 <span class="yellow">'+fmt(100000-total)+'</span></span>'}
    $('tenMark').textContent=total>=100000?'✅ 10만원':'🎯 10만원';
    $('elevenMark').textContent=total>=110000?'✅ 11만원':'11만원 🏁';
+   $('topTen').textContent=total>=100000?'✅ 10만원':'🎯 10만원';
+   $('topEleven').textContent=total>=110000?'✅ 11만원':'11만원 🏁';
  }
 }
 function authorized(){return auth.currentUser?.email===allowed}
