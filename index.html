@@ -58,6 +58,19 @@ html.live .labels .eleven{right:0}
  html.live .top{min-height:31px}
  html.live .labels{font-size:11px}
 }
+/* 방송용 가독성: SVG 진행바 원본은 변경하지 않음 */
+html.live .card{padding-bottom:12px}
+html.live .heading{width:31%;font-size:clamp(18px,4.8vw,23px);letter-spacing:-.8px}
+html.live .top{grid-template-columns:31% 32% 37%;min-height:38px}
+html.live .amount{font-size:clamp(25px,6.3vw,42px)}
+html.live .status{font-size:clamp(17px,4.5vw,22px);letter-spacing:-.6px}
+html.live .labels{margin-top:10px;height:21px;line-height:21px;font-size:clamp(12px,3vw,16px)}
+@media(max-width:430px){
+ html.live .heading{font-size:clamp(17px,4.6vw,20px)}
+ html.live .top{min-height:34px}
+ html.live .status{font-size:clamp(16px,4.3vw,19px)}
+ html.live .labels{font-size:12px;margin-top:10px}
+}
 </style>
 </head>
 <body>
@@ -111,10 +124,11 @@ function render(){
   $('goal').textContent='🎯 10만원 ~ 11만원 🏁';
  }
  if(live){
+   document.querySelector('.heading').textContent='🛵 10만 챌린지';
    if(total>=110000){$('status').innerHTML='<span class="line green">🏁 11만원 완주!</span>'}
    else if(total>=100000){$('status').innerHTML='<span class="line red">🎉 10만원 달성!</span>'}
-   else {$('status').innerHTML='<span class="line">남은 <span class="yellow">'+fmt(100000-total)+'</span></span>'}
-   $('tenMark').textContent=total>=100000?'✅ 10만원':'10만원';
+   else {$('status').innerHTML='<span class="line">목표 <span class="yellow">'+fmt(100000-total)+'</span></span>'}
+   $('tenMark').textContent=total>=100000?'✅ 10만원':'🎯 10만원';
    $('elevenMark').textContent=total>=110000?'✅ 11만원':'11만원 🏁';
  }
 }
