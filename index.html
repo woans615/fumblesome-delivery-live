@@ -135,17 +135,19 @@ html.live .live-goals .eleven{right:0;transform:translateY(-50%);font-size:clamp
 }
 
 /* 방송 상단 목표: 지그재그(약 88%)가 10만원과 11만원 사이에 오도록 */
-html.live .live-goals .ten{right:16%;font-size:clamp(15px,3.55vw,21px)}
+html.live .live-goals .ten{right:12.5%;font-size:clamp(15px,3.55vw,21px)}
 html.live .live-goals .eleven{right:0;font-size:clamp(15px,3.55vw,21px)}
 @media(max-width:430px){
  html.live .live-goals .ten,html.live .live-goals .eleven{font-size:clamp(12px,3.35vw,16px)}
 }
+/* 오토바이만 글씨보다 약 20% 크게: 다른 요소는 그대로 */
+.heading .bike-icon{display:inline-block;font-size:1.2em;line-height:1;vertical-align:-0.07em}
 </style>
 </head>
 <body>
 <div class="wrap">
 <section class="card">
-<div class="heading">🏍 퇴근 후 10만원 챌린지</div>
+<div class="heading"><span class="bike-icon">🏍</span> 퇴근 후 10만원 챌린지</div>
 <div class="top"><div class="amount" id="amount">0원</div><div class="status" id="status"><span class="line">목표까지 <span class="yellow">100,000원</span></span><span class="line">남았다!</span></div></div>
 <!-- 지그재그 두 조각: 같은 윤곽을 4px 평행 이동시켜 아주 얇은 균일한 틈을 둠 -->
 <svg class="graph" viewBox="0 0 600 28" xmlns="http://www.w3.org/2000/svg" aria-label="배달 수익 진행바">
@@ -194,7 +196,7 @@ function render(){
   $('goal').textContent='🎯 10만원 ~ 11만원 🏁';
  }
  if(live){
-   document.querySelector('.heading').textContent='🏍 퇴근 후 10만원 챌린지';
+   /* 제목과 오토바이 아이콘은 HTML 그대로 유지 */
    if(total>=110000){$('status').innerHTML='<span class="line green">🏁 11만원 완주!</span>'}
    else if(total>=100000){$('status').innerHTML='<span class="line red">🎉 10만원 달성!</span>'}
    else {$('status').innerHTML='<span class="line">목표 <span class="yellow">'+fmt(100000-total)+'</span></span>'}
