@@ -124,12 +124,12 @@ html.live .live-goals .eleven{position:absolute;right:0;top:50%;transform:transl
 }
 /* 방송용 최종 배치: 그래프 SVG는 그대로 유지 */
 html.live .top{grid-template-columns:48% 25% 27%;min-height:39px}
-html.live .heading{width:48%;font-size:clamp(17px,4.3vw,27px)}
+html.live .heading{width:48%;font-size:clamp(19px,5.0vw,32px);letter-spacing:-1.4px}
 html.live .amount{grid-column:2;font-size:clamp(27px,7.1vw,42px);justify-self:center;letter-spacing:-1px}
-html.live .live-goals .ten{right:12.5%;transform:translateY(-50%);font-size:clamp(12px,2.9vw,17px)}
+html.live .live-goals .ten{right:10.7%;transform:translateY(-50%);font-size:clamp(12px,2.9vw,17px)}
 html.live .live-goals .eleven{right:0;transform:translateY(-50%);font-size:clamp(12px,2.9vw,17px)}
 @media(max-width:430px){
- html.live .heading{font-size:clamp(15px,4.05vw,18px)}
+ html.live .heading{font-size:clamp(16px,4.5vw,20px)}
  html.live .amount{font-size:clamp(25px,6.7vw,31px)}
  html.live .live-goals .ten,html.live .live-goals .eleven{font-size:clamp(10px,2.7vw,13px)}
 }
@@ -145,13 +145,13 @@ html.live .live-goals .eleven{right:0;transform:translateY(-50%);font-size:clamp
 <defs>
 <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ffe66a"/><stop offset="55%" stop-color="#ffae3e"/><stop offset="100%" stop-color="#ff3552"/></linearGradient>
 <linearGradient id="extraGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ffae3e"/><stop offset="100%" stop-color="#ff3552"/></linearGradient>
-<clipPath id="mainClip"><path d="M14 1 H496 L490 7 L496 13 L490 19 L496 27 H14 A13 13 0 0 1 1 14 A13 13 0 0 1 14 1 Z"/></clipPath>
-<clipPath id="extraClip"><path d="M500 1 H586 A13 13 0 0 1 599 14 A13 13 0 0 1 586 27 H500 L494 19 L500 13 L494 7 Z"/></clipPath>
+<clipPath id="mainClip"><path d="M14 1 H530 L524 7 L530 13 L524 19 L530 27 H14 A13 13 0 0 1 1 14 A13 13 0 0 1 14 1 Z"/></clipPath>
+<clipPath id="extraClip"><path d="M534 1 H586 A13 13 0 0 1 599 14 A13 13 0 0 1 586 27 H534 L528 19 L534 13 L528 7 Z"/></clipPath>
 </defs>
-<path d="M14 1 H496 L490 7 L496 13 L490 19 L496 27 H14 A13 13 0 0 1 1 14 A13 13 0 0 1 14 1 Z" fill="#394459" stroke="#8390a8" stroke-width="1.1"/>
+<path d="M14 1 H530 L524 7 L530 13 L524 19 L530 27 H14 A13 13 0 0 1 1 14 A13 13 0 0 1 14 1 Z" fill="#394459" stroke="#8390a8" stroke-width="1.1"/>
 <rect id="mainFill" x="1" y="1" width="0" height="26" fill="url(#progressGradient)" clip-path="url(#mainClip)"/>
-<path d="M500 1 H586 A13 13 0 0 1 599 14 A13 13 0 0 1 586 27 H500 L494 19 L500 13 L494 7 Z" fill="#394459" stroke="#8390a8" stroke-width="1.1"/>
-<rect id="extraFill" x="494" y="1" width="0" height="26" fill="url(#extraGradient)" clip-path="url(#extraClip)"/>
+<path d="M534 1 H586 A13 13 0 0 1 599 14 A13 13 0 0 1 586 27 H534 L528 19 L534 13 L528 7 Z" fill="#394459" stroke="#8390a8" stroke-width="1.1"/>
+<rect id="extraFill" x="528" y="1" width="0" height="26" fill="url(#extraGradient)" clip-path="url(#extraClip)"/>
 </svg>
 <div class="live-goals"><span class="ten" id="topTen">🎯 10만원</span><span class="eleven" id="topEleven">11만원 🏁</span></div>
 <div class="labels"><span>0원</span><span class="goal" id="goal">🎯 10만원 ~ 11만원 🏁</span><span class="live-mark ten" id="tenMark">10만원</span><span class="live-mark eleven" id="elevenMark">11만원 🏁</span></div>
@@ -171,8 +171,8 @@ const fmt=n=>Math.round(n).toLocaleString('ko-KR')+'원';
 let total=0,history=[],busy=false;
 function render(){
  $('amount').textContent=fmt(total);
- $('mainFill').setAttribute('width',Math.min(1,total/100000)*495);
- $('extraFill').setAttribute('width',Math.max(0,Math.min(1,(total-100000)/10000))*105);
+ $('mainFill').setAttribute('width',Math.min(1,total/100000)*529);
+ $('extraFill').setAttribute('width',Math.max(0,Math.min(1,(total-100000)/10000))*71);
  if(total>=110000){
   $('mainFill').setAttribute('fill','#4ce675');$('extraFill').setAttribute('fill','#4ce675');
   $('status').innerHTML='<span class="line green">🏁 11만원 완주!</span><span class="line">부대비용까지 확보!</span>';
