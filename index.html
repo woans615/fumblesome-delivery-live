@@ -35,6 +35,29 @@ html.live .graph{width:100%;height:auto}
 html.live .labels{margin-top:1px;font-size:clamp(11px,2.7vw,14px)}
 html.live .panel{display:none!important}
 @media(max-width:430px){html.live .card{padding:6px 9px 5px}html.live .heading{font-size:17px}html.live .amount{font-size:clamp(29px,8vw,34px)}html.live .status{font-size:12px}html.live .top{gap:4px;margin:2px 0 3px}html.live .labels{font-size:11px}}
+/* 방송 전용: 상단 한 줄, 카드 바깥 폭과 그래프 원본 유지 */
+.live-mark{display:none}
+html.live .card{padding:6px 10px 5px}
+html.live .card{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+html.live .heading{grid-row:1;grid-column:1;align-self:center;width:34%;font-size:clamp(12px,3.05vw,18px);line-height:1.12;letter-spacing:-.6px;overflow:hidden;text-overflow:clip}
+html.live .top{grid-row:1;grid-column:1;display:grid;grid-template-columns:34% 33% 33%;align-items:center;gap:0;margin:0;min-height:36px;pointer-events:none}
+html.live .amount{grid-column:2;text-align:center;font-size:clamp(25px,6.3vw,42px);line-height:1.1;letter-spacing:-1px;min-width:0}
+html.live .status{grid-column:3;text-align:right;font-size:clamp(11px,2.65vw,17px);line-height:1.15;min-width:0}
+html.live .status .line{display:none}
+html.live .status .line:first-child{display:block}
+html.live .graph{grid-row:2;grid-column:1;margin-top:2px}
+html.live .labels{grid-row:3;grid-column:1;position:relative;display:block;height:17px;margin-top:0;font-size:clamp(11px,2.5vw,15px);line-height:17px}
+html.live .labels .goal{display:none}
+html.live .labels .live-mark{display:block;position:absolute;top:0;white-space:nowrap}
+html.live .labels .ten{right:17.5%;transform:translateX(0);color:#ffdc87}
+html.live .labels .eleven{right:0}
+@media(max-width:430px){
+ html.live .heading{font-size:clamp(11px,3.05vw,15px)}
+ html.live .amount{font-size:clamp(23px,6.1vw,29px)}
+ html.live .status{font-size:clamp(10px,2.6vw,13px)}
+ html.live .top{min-height:31px}
+ html.live .labels{font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -55,7 +78,7 @@ html.live .panel{display:none!important}
 <path d="M500 1 H586 A13 13 0 0 1 599 14 A13 13 0 0 1 586 27 H500 L494 19 L500 13 L494 7 Z" fill="#394459" stroke="#8390a8" stroke-width="1.1"/>
 <rect id="extraFill" x="494" y="1" width="0" height="26" fill="url(#extraGradient)" clip-path="url(#extraClip)"/>
 </svg>
-<div class="labels"><span>0원</span><span class="goal" id="goal">🎯 10만원 ~ 11만원 🏁</span></div>
+<div class="labels"><span>0원</span><span class="goal" id="goal">🎯 10만원 ~ 11만원 🏁</span><span class="live-mark ten" id="tenMark">10만원</span><span class="live-mark eleven" id="elevenMark">11만원 🏁</span></div>
 </section>
 <section class="panel"><h2>💰 콜 수락 금액 추가</h2><div class="inputrow"><input id="entry" type="number" min="1" inputmode="numeric" placeholder="예: 3500"><button class="add" id="add">+ 금액 추가</button></div><div class="buttons"><button class="undo" id="undo">↶ 마지막 취소</button><button class="reset" id="reset">오늘 초기화</button></div><button class="login" id="login">Google 로그인</button><div class="auth" id="auth">Firebase 연결 중...</div><div class="note">방송 화면: 주소 뒤에 <b>?view=live</b> 추가<br>본폰에서 입력한 금액이 방송폰에 실시간 반영됩니다.</div></section>
 </div>
@@ -86,6 +109,13 @@ function render(){
   $('mainFill').setAttribute('fill','url(#progressGradient)');$('extraFill').setAttribute('fill','url(#extraGradient)');
   $('status').innerHTML='<span class="line">목표까지 <span class="yellow">'+fmt(100000-total)+'</span></span><span class="line">남았다!</span>';
   $('goal').textContent='🎯 10만원 ~ 11만원 🏁';
+ }
+ if(live){
+   if(total>=110000){$('status').innerHTML='<span class="line green">🏁 11만원 완주!</span>'}
+   else if(total>=100000){$('status').innerHTML='<span class="line red">🎉 10만원 달성!</span>'}
+   else {$('status').innerHTML='<span class="line">남은 <span class="yellow">'+fmt(100000-total)+'</span></span>'}
+   $('tenMark').textContent=total>=100000?'✅ 10만원':'10만원';
+   $('elevenMark').textContent=total>=110000?'✅ 11만원':'11만원 🏁';
  }
 }
 function authorized(){return auth.currentUser?.email===allowed}
