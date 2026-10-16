@@ -133,6 +133,13 @@ html.live .live-goals .eleven{right:0;transform:translateY(-50%);font-size:clamp
  html.live .amount{font-size:clamp(25px,6.7vw,31px)}
  html.live .live-goals .ten,html.live .live-goals .eleven{font-size:clamp(10px,2.7vw,13px)}
 }
+
+/* 방송 상단 목표: 지그재그(약 88%)가 10만원과 11만원 사이에 오도록 */
+html.live .live-goals .ten{right:16%;font-size:clamp(15px,3.55vw,21px)}
+html.live .live-goals .eleven{right:0;font-size:clamp(15px,3.55vw,21px)}
+@media(max-width:430px){
+ html.live .live-goals .ten,html.live .live-goals .eleven{font-size:clamp(12px,3.35vw,16px)}
+}
 </style>
 </head>
 <body>
