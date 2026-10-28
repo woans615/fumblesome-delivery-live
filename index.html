@@ -190,7 +190,7 @@ html.live .settings{display:none!important}
 </div>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
-import {getDatabase,ref,onValue,runTransaction} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js';
+import {getDatabase,ref,onValue,runTransaction,set} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
 const firebaseConfig={apiKey:'AIzaSyBYli6uH0h7QGWdO0B3jXGGycSnh2JkL_U',authDomain:'delivery-live-9aa51.firebaseapp.com',databaseURL:'https://delivery-live-9aa51-default-rtdb.asia-southeast1.firebasedatabase.app',projectId:'delivery-live-9aa51',storageBucket:'delivery-live-9aa51.firebasestorage.app',messagingSenderId:'1089852186613',appId:'1:1089852186613:web:1c93216b16060c29d90abc'};
 const live=document.documentElement.classList.contains('live');
@@ -259,6 +259,26 @@ if(!live){
  $('entry').addEventListener('keydown',e=>{if(e.key==='Enter')$('add').click()});
  $('undo').onclick=async()=>{if(!history.length){alert('이 폰에서 추가한 취소 기록이 없어!');return}const v=history[history.length-1];if(await change(-v))history.pop()};
  $('reset').onclick=async()=>{if(!confirm('오늘 금액을 0원으로 초기화할까?'))return;if(await change(0,true))history=[]};
+
+ $('saveSettings').onclick=async()=>{
+  const info=$('settingsInfo');
+  if(!authorized()){info.textContent='먼저 허용된 Google 계정으로 로그인해줘!';return}
+  const emoji=$('settingEmoji').value.trim();
+  const title=$('settingTitle').value.trim();
+  const goal=Number($('settingGoal').value);
+  const final=Number($('settingFinal').value);
+  if(!emoji||!title){info.textContent='이모지와 제목을 입력해줘!';return}
+  if(!Number.isSafeInteger(goal)||goal<=0||!Number.isSafeInteger(final)||final<=goal){info.textContent='목표 금액은 양의 정수로, 최종 목표는 기본 목표보다 크게 입력해줘!';return}
+  if(settingsBusy)return;
+  settingsBusy=true;$('saveSettings').disabled=true;
+  info.textContent='설정 저장 중...';
+  try{
+   await set(settingsRef,{emoji:emoji.slice(0,12),title:title.slice(0,32),goal,final});
+   info.textContent='✅ 저장 완료! 방송 화면에도 반영돼.';
+  }catch(e){info.textContent='⚠️ 설정 저장 실패: '+e.message}
+  finally{settingsBusy=false;$('saveSettings').disabled=!authorized()}
+ };
+
  setButtons();
 }
 render();
